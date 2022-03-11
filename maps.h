@@ -26,6 +26,7 @@ int nextMap;
 int prevMap;
 int startX = 27;
 int startY = 24;
+int c;
 
 char mapList[][20] = {"map1_template.txt", "map2_template.txt", "map3_template.txt"};
 
@@ -267,14 +268,15 @@ void drawMap(Node** map) {
 
 	printf("\nDroid Data: \n");
 	printf("Current Coordinates: x: %d, y: %d\n", Character.Droid.y, MAXROW - Character.Droid.x - 1);
-	printf("Software Version: %s\n", Character.Droid.softwareVersion);
+	printf("Software Version: %d\n", Character.Droid.softwareVersion);
 	printf("Power Level: %d\n", Character.Droid.powerLevel);
 	printf("Health: %d\n", Character.Droid.health);
+	printf("Enemy health: %d  Enemy attack: %d\n", Enemy.Droid.health, Enemy.Droid.attack);
 	printf("Datapads collected:  %d\n", datapads);
 	printf("Command: ");
 }
 
-int doorTransition(Node*** map, int* current_x, int* current_y, int* enemyLevel) {
+int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y, int* enemyLevel) {
 
 	if (*current_x == prevDoor[0] && *current_y == prevDoor[1]){
 
@@ -289,7 +291,11 @@ int doorTransition(Node*** map, int* current_x, int* current_y, int* enemyLevel)
 		return 1;
 
 	} else if (*current_x == nextDoor[0] && *current_y == nextDoor[1]) {
-
+		if (Character->Droid.softwareVersion < *enemyLevel) {
+			printf("Insufficient software version to continue! Collect more datapads for software upgrades.\n");
+			sleep(3);
+			return 0;
+		}
 		*map = loadMap(mapList[nextMap], enemyLevel);
 		*current_x = prevDoor[0];
 		*current_y = prevDoor[1];

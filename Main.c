@@ -67,12 +67,15 @@ int main (void) {
 						break;
 					}
 
+					if (map[current_x - 1][current_y].Tile.type == 0 &&
+						map[current_x - 1][current_y].Tile.icon == 'D') {
+						collectDatapad(&Character, &datapads);
+					}
+
 					moveDroidUp(map, &Character, &current_x, &current_y);
 
-					if (doorTransition(&map, &current_x, &current_y, &enemyLevel)) {
+					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						initializeEnemy(&Enemy, enemyLevel);
-					} else if (map[current_x][current_y].Tile.icon == 'D') {
-						collectDatapad(map, &datapads, current_x, current_y);
 					}
 				}
 				break;
@@ -84,19 +87,22 @@ int main (void) {
 						powerUp(&Character);
 					}
 
-					if (map[current_x][current_y - 1].Tile.type == 0 &&
+					else if (map[current_x][current_y - 1].Tile.type == 0 &&
 						map[current_x][current_y - 1].Droid.icon == 'E') {
 						attack(&Character, map, current_x, current_y - 1);
 						statusCheck(map, current_x, current_y - 1);
 						break;
 					}
 
+					else if (map[current_x][current_y - 1].Tile.type == 1 &&
+						map[current_x][current_y - 1].Tile.icon == 'D') {
+						collectDatapad(&Character, &datapads);
+					}
+
 					moveDroidLeft(map, &Character, &current_x, &current_y);
 
-					if (doorTransition(&map, &current_x, &current_y, &enemyLevel)) {
+					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						initializeEnemy(&Enemy, enemyLevel);
-					}  else if (map[current_x][current_y].Tile.icon == 'D') {
-						collectDatapad(map, &datapads, current_x, current_y);
 					}
 
 				}
@@ -115,11 +121,15 @@ int main (void) {
 						break;
 					}
 
+					if (map[current_x + 1][current_y].Tile.type == 0 &&
+						map[current_x + 1][current_y].Tile.icon == 'D') {
+						collectDatapad(&Character, &datapads);
+					}
+
 					moveDroidDown(map, &Character, &current_x, &current_y);
-					if (doorTransition(&map, &current_x, &current_y, &enemyLevel)) {
+
+					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						initializeEnemy(&Enemy, enemyLevel);
-					}  else if (map[current_x][current_y].Tile.icon == 'D') {
-						collectDatapad(map, &datapads, current_x, current_y);
 					}
 				}
 				break;
@@ -139,11 +149,15 @@ int main (void) {
 						break;
 					}
 
+					if (map[current_x][current_y + 1].Tile.type == 0 &&
+						map[current_x][current_y + 1].Tile.icon == 'D') {
+					collectDatapad(&Character, &datapads);
+					}
+
 					moveDroidRight(map, &Character, &current_x, &current_y);
-					if (doorTransition(&map, &current_x, &current_y, &enemyLevel)) {
+
+					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						initializeEnemy(&Enemy, enemyLevel);
-					}  else if (map[current_x][current_y].Tile.icon == 'D') {
-						collectDatapad(map, &datapads, current_x, current_y);
 					}
 				}
 				break;

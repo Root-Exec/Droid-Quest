@@ -3,15 +3,17 @@
 #define DROID_TYPE 0
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 union node {
 
 	struct droid {
 		int type;
-		char softwareVersion[10];
+		int softwareVersion;
 		int health;
 		int attack;
+		int batteryLimit;
 		int powerLevel;
 		int x, y;
 		char icon;
@@ -28,20 +30,22 @@ typedef union node Node;
 
 extern Node path;
 
+char items[][15] = {"armor", "power supply", "weapon", "software"};
+
 int initializeCharacter(Node* Character) {
 	Character->Droid.type = 0;
-	strcpy(Character->Droid.softwareVersion, "1.0.0");
+	Character->Droid.softwareVersion = 0;
 	Character->Droid.health = 100;
 	Character->Droid.attack = 10;
-	Character->Droid.powerLevel = 100;
+	Character->Droid.batteryLimit = 100;
+	Character->Droid.powerLevel = Character->Droid.batteryLimit;
 	Character->Droid.icon = 'O';
 	return 0;
 }
 
 int initializeEnemy(Node* Enemy, int level) {
-
 	Enemy->Droid.type = 0;
-	strcpy(Enemy->Droid.softwareVersion, "Enemy");
+	Enemy->Droid.softwareVersion = level;
 	Enemy->Droid.health = level * 10;
 	Enemy->Droid.attack = level * 5;
 	Enemy->Droid.powerLevel = 100;
@@ -57,9 +61,9 @@ int powerUp(Node* Character) {
 	return 0;
 }
 
-int upgradeCharacter(char* item, int value, Node* Character) {
-
-
+int upgradeCharacter(char* item, Node* Character) {
+	if (strcmp(item, "power supply") == 0) Character->Droid.batteryLimit += 10;
+	if (strcmp(item, "weapon") == 0) Character->Droid.attack += 5;
 	return 0;
 }
 
@@ -115,8 +119,9 @@ void attack(Node* Character, Node** map, int x, int y) {
 	return;
 }
 
-void collectDatapad(Node** map, int* datapads, int x, int y) {
+void collectDatapad(Node* Character, int* datapads) {
+		int value = arc4random_uniform(4);
+		if (value <= 10) Character->Droid.softwareVersion += 1;
 		(*datapads)++;
-		map[x][y] = path;
 		return;
 }

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <curses.h>
+#include <sys/select.h>
 #include "maps.h"
 
 #ifndef DROIDFUNCTIONS_H
@@ -25,11 +25,18 @@ extern int startY;
 
 int enemyLevel = 1;
 int datapads = 0;
+int timer = 0;
+
+struct timeval timeout;
+
 
 int main (void) {
 	int current_x = startX;
 	int current_y = startY;
+	int retval;
 	char command;
+	fd_set rfds;
+
 
 	printWelcomeScreen();
 	initializeCharacter(&Character);
@@ -48,6 +55,25 @@ int main (void) {
 	drawMap(map);
 
 	while (1) {
+
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+		FD_ZERO(&rfds);
+		FD_SET(STDIN_FILENO, &rfds);
+
+		retval = select(STDIN_FILENO + 1, &rfds, NULL, NULL, &timeout);
+
+		if (retval == 0) {
+			timer++;
+			command = 0;
+			printf("\n");
+			drawMap(map);
+			continue;
+		} else if (retval == -1) {
+			system("clear");
+			printf("error\n");
+			return 1;
+		}
 
 		command = getchar();
 
@@ -165,6 +191,9 @@ int main (void) {
 			case 'l':
 				unloadMap(map);
 				return 0;
+
+			default:
+				break;
 
 		};
 

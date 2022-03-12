@@ -19,6 +19,7 @@ extern Node Character;
 extern Node Enemy;
 extern int enemyLevel;
 extern int datapads;
+extern int timer;
 
 int prevDoor[2];
 int nextDoor[2];
@@ -256,6 +257,7 @@ Node** loadMap(char* mapName, int* enemyLevel) {
 }
 
 void drawMap(Node** map) {
+	system("Clear");
 	for (int a = 0; a < MAXROW; a++) {
 		for (int b = 0; b < MAXCOL; b++) {
 			if (map[a][b].Tile.type == 1)
@@ -267,13 +269,14 @@ void drawMap(Node** map) {
 	}
 
 	printf("\nDroid Data: \n");
+	printf("Time elapsed: %d\n", timer);
 	printf("Current Coordinates: x: %d, y: %d\n", Character.Droid.y, MAXROW - Character.Droid.x - 1);
 	printf("Software Version: %d\n", Character.Droid.softwareVersion);
 	printf("Power Level: %d\n", Character.Droid.powerLevel);
 	printf("Health: %d\n", Character.Droid.health);
 	printf("Enemy health: %d  Enemy attack: %d\n", Enemy.Droid.health, Enemy.Droid.attack);
 	printf("Datapads collected:  %d\n", datapads);
-	printf("Command: ");
+	printf("Command: \n");
 }
 
 int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y, int* enemyLevel) {
@@ -331,6 +334,7 @@ void cleanup(Node** map, Node* Character, int* current_x, int* current_y) {
 	map[*current_x][*current_y] = *Character;
 	map[*current_x][*current_y].Droid.icon = 'O';
 	__CLEARBUFFER;
+	timer++;
 	system("clear");
 	return;
 

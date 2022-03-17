@@ -56,7 +56,7 @@ int main (void) {
 
 	while (1) {
 
-		timeout.tv_sec = 1;
+		timeout.tv_sec = 2;
 		timeout.tv_usec = 0;
 		FD_ZERO(&rfds);
 		FD_SET(STDIN_FILENO, &rfds);
@@ -66,7 +66,8 @@ int main (void) {
 		if (retval == 0) {
 			timer++;
 			command = 0;
-			printf("\n");
+			cleanup(map, &Character, &current_x, &current_y);
+			moveEnemy(map, current_x, current_y);
 			drawMap(map);
 			continue;
 		} else if (retval == -1) {
@@ -177,7 +178,7 @@ int main (void) {
 
 					if (map[current_x][current_y + 1].Tile.type == 0 &&
 						map[current_x][current_y + 1].Tile.icon == 'D') {
-					collectDatapad(&Character, &datapads);
+						collectDatapad(&Character, &datapads);
 					}
 
 					moveDroidRight(map, &Character, &current_x, &current_y);
@@ -198,6 +199,7 @@ int main (void) {
 		};
 
 		cleanup(map, &Character, &current_x, &current_y);
+		moveEnemy(map, current_x, current_y);
 		drawMap(map);
 
 		if (Character.Droid.powerLevel <= 0) {

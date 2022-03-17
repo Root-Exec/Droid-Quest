@@ -276,7 +276,7 @@ void drawMap(Node** map) {
 	printf("Health: %d\n", Character.Droid.health);
 	printf("Enemy health: %d  Enemy attack: %d\n", Enemy.Droid.health, Enemy.Droid.attack);
 	printf("Datapads collected:  %d\n", datapads);
-	printf("Command: \n");
+	printf("Command: ");
 }
 
 int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y, int* enemyLevel) {
@@ -334,12 +334,55 @@ void cleanup(Node** map, Node* Character, int* current_x, int* current_y) {
 	map[*current_x][*current_y] = *Character;
 	map[*current_x][*current_y].Droid.icon = 'O';
 	__CLEARBUFFER;
-	timer++;
+	//for (int i = 0; i < MAXROW; i++) printf("\r");
 	system("clear");
 	return;
 
 }
 
+void moveEnemy(Node** map, int current_x, int current_y) {
+	int tempX;
+	int tempY;
 
+	for (int x = current_x - 4; x < current_x + 4; x++) {
+
+		if (x < 0) continue;
+		if (x >= MAXROW) break;
+
+		for (int y = current_y - 4; y < current_y + 4; y++) {
+			if (y < 0) continue;
+			if (y >= MAXCOL) break;
+			tempX = 0;
+			tempY = 0;
+
+			if (map[x][y].Droid.icon == 'E') {
+				if (current_x - x < 0) tempX = -1;
+				else if (current_x - x > 0) tempX = 1;
+
+				if (current_y - y < 0) tempY = -1;
+				else if (current_y - y > 0) tempY = 1;
+
+				if (map[x + tempX][y + tempY].Tile.icon == ' ') {
+					map[x][y] = path;
+					map[x + tempX][y + tempY] = Enemy;
+					continue;
+				} else if (abs(current_x - tempX) < abs(current_y - tempY) &&
+						   map[x + tempX][y].Tile.icon == ' ') {
+					map[x][y] = path;
+					map[x + tempX][y] = Enemy;
+					continue;
+				} else if (map[x][y + tempY].Tile.icon == ' ') {
+					map[x][y] = path;
+					map[x][y + tempY] = Enemy;
+					continue;
+				}
+
+			}
+		}
+
+	}
+
+	return;
+}
 
 

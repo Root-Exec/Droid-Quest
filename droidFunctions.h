@@ -1,5 +1,6 @@
 #define STRING_H
-#define DROIDFUNCTIONS_H
+#define UNISTD_H
+#define STDLIB_H
 #define DROID_TYPE 0
 #include <string.h>
 #include <stdlib.h>
@@ -15,6 +16,7 @@ union node {
 		int attack;
 		int batteryLimit;
 		int powerLevel;
+		int moved;
 		int x, y;
 		char icon;
 	} Droid;
@@ -49,6 +51,7 @@ int initializeEnemy(Node* Enemy, int level) {
 	Enemy->Droid.health = level * 10;
 	Enemy->Droid.attack = level * 5;
 	Enemy->Droid.powerLevel = 100;
+	Enemy->Droid.moved = 0;
 	Enemy->Droid.icon = 'E';
 	return 0;
 }
@@ -73,8 +76,8 @@ void moveDroidUp(Node** map, Node* Character, int* current_x, int* current_y) {
 	map[*current_x][*current_y].Tile.icon = ' ';
 	(*current_x)--;
 	map[*current_x][*current_y] = *Character;
-	map[*current_x][*current_y].Droid.icon = 'O';
-
+	Character->Droid.x = *current_x;
+	Character->Droid.y = *current_y;
 	return;
 }
 
@@ -84,8 +87,8 @@ void moveDroidLeft(Node** map, Node* Character, int* current_x, int* current_y) 
 	map[*current_x][*current_y].Tile.icon = ' ';
 	(*current_y)--;
 	map[*current_x][*current_y] = *Character;
-	map[*current_x][*current_y].Droid.icon = 'O';
-
+	Character->Droid.x = *current_x;
+	Character->Droid.y = *current_y;
 	return;
 }
 
@@ -95,8 +98,8 @@ void moveDroidDown(Node** map, Node* Character, int* current_x, int* current_y) 
 	map[*current_x][*current_y].Tile.icon = ' ';
 	(*current_x)++;
 	map[*current_x][*current_y] = *Character;
-	map[*current_x][*current_y].Droid.icon = 'O';
-
+	Character->Droid.x = *current_x;
+	Character->Droid.y = *current_y;
 	return;
 }
 
@@ -106,8 +109,8 @@ void moveDroidRight(Node** map, Node* Character, int* current_x, int* current_y)
 	map[*current_x][*current_y].Tile.icon = ' ';
 	(*current_y)++;
 	map[*current_x][*current_y] = *Character;
-	map[*current_x][*current_y].Droid.icon = 'O';
-
+	Character->Droid.x = *current_x;
+	Character->Droid.y = *current_y;
 	return;
 }
 
@@ -115,7 +118,6 @@ void attack(Node* Character, Node** map, int x, int y) {
 
 	Character->Droid.health -= map[x][y].Droid.attack;
 	map[x][y].Droid.health -= Character->Droid.attack;
-
 	return;
 }
 

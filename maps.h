@@ -1,8 +1,8 @@
 #include "droidFunctions.h"
 #include <stdio.h>
-#include <unistd.h>
 
 #define STDIO_H
+#define DROIDFUNCTIONS_H
 #define MAXROW 30
 #define MAXCOL 30
 #define PATH_TYPE 1
@@ -276,7 +276,7 @@ void drawMap(Node** map) {
 	printf("Health: %d\n", Character.Droid.health);
 	printf("Enemy health: %d  Enemy attack: %d\n", Enemy.Droid.health, Enemy.Droid.attack);
 	printf("Datapads collected:  %d\n", datapads);
-	printf("Command: ");
+	printf("Command: \n");
 }
 
 int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y, int* enemyLevel) {
@@ -331,11 +331,8 @@ void cleanup(Node** map, Node* Character, int* current_x, int* current_y) {
 	int c;
 	Character->Droid.x = *current_x;
 	Character->Droid.y = *current_y;
-	map[*current_x][*current_y] = *Character;
-	map[*current_x][*current_y].Droid.icon = 'O';
 	__CLEARBUFFER;
-	//for (int i = 0; i < MAXROW; i++) printf("\r");
-	system("clear");
+	for (int i = 0; i < MAXROW; i++) printf("\r");
 	return;
 
 }
@@ -352,10 +349,12 @@ void moveEnemy(Node** map, int current_x, int current_y) {
 		for (int y = current_y - 4; y < current_y + 4; y++) {
 			if (y < 0) continue;
 			if (y >= MAXCOL) break;
-			tempX = 0;
-			tempY = 0;
 
-			if (map[x][y].Droid.icon == 'E') {
+			if (map[x][y].Droid.icon == 'E' &&
+			    map[x][y].Droid.moved == 0) {
+				tempX = 0;
+				tempY = 0;
+
 				if (current_x - x < 0) tempX = -1;
 				else if (current_x - x > 0) tempX = 1;
 
@@ -365,24 +364,31 @@ void moveEnemy(Node** map, int current_x, int current_y) {
 				if (map[x + tempX][y + tempY].Tile.icon == ' ') {
 					map[x][y] = path;
 					map[x + tempX][y + tempY] = Enemy;
-					continue;
-				} else if (abs(current_x - tempX) < abs(current_y - tempY) &&
-						   map[x + tempX][y].Tile.icon == ' ') {
+					map[x + tempX][y + tempY].Droid.moved = 1;
+
+				} else if (map[x + tempX][y].Tile.icon == ' ') {
 					map[x][y] = path;
 					map[x + tempX][y] = Enemy;
-					continue;
+					map[x + tempX][y].Droid.moved = 1;
+
 				} else if (map[x][y + tempY].Tile.icon == ' ') {
 					map[x][y] = path;
 					map[x][y + tempY] = Enemy;
-					continue;
+					map[x][y + tempY].Droid.moved = 1;
 				}
-
 			}
 		}
-
 	}
+	for (int x = current_x - 5; x < current_x + 5; x++) {
+		if (x < 0) continue;
+		if (x >= MAXROW) break;
+	
+		for (int y = current_y - 5; y < current_y + 5; y++) {
+			if (y < 0) continue;
+			if (y >= MAXCOL) break;
 
+			if (map[x][y].Droid.icon == 'E') map[x][y].Droid.moved = 0;
+		}
+	}
 	return;
 }
-
-

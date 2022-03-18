@@ -1,14 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <sys/select.h>
 #include "maps.h"
 
 #ifndef DROIDFUNCTIONS_H
 #include "droidFunctions.h"
-#endif
-
-#ifndef STDIO_H
-#include <stdio.h>
 #endif
 
 extern Node wall;
@@ -35,8 +29,8 @@ int main (void) {
 	int current_y = startY;
 	int retval;
 	char command;
+	
 	fd_set rfds;
-
 
 	printWelcomeScreen();
 	initializeCharacter(&Character);
@@ -56,26 +50,24 @@ int main (void) {
 
 	while (1) {
 
-		timeout.tv_sec = 2;
+		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 		FD_ZERO(&rfds);
 		FD_SET(STDIN_FILENO, &rfds);
-
+		
 		retval = select(STDIN_FILENO + 1, &rfds, NULL, NULL, &timeout);
 
 		if (retval == 0) {
 			timer++;
-			command = 0;
-			cleanup(map, &Character, &current_x, &current_y);
 			moveEnemy(map, current_x, current_y);
 			drawMap(map);
 			continue;
 		} else if (retval == -1) {
 			system("clear");
-			printf("error\n");
+			printf("system timer error\n");
 			return 1;
 		}
-
+		
 		command = getchar();
 
 		switch(command) {
@@ -194,7 +186,7 @@ int main (void) {
 				return 0;
 
 			default:
-				break;
+				continue;
 
 		};
 
@@ -212,7 +204,7 @@ int main (void) {
 			unloadMap(map);
 			return 0;
 		}
-
+		
 	}
 
 	return 0;

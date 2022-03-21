@@ -59,7 +59,7 @@ int main (void) {
 
 		if (retval == 0) {
 			timer++;
-			moveEnemy(map, current_x, current_y);
+			moveEnemy(map, &Character, &Enemy, current_x, current_y);
 			drawMap(map);
 			continue;
 		} else if (retval == -1) {
@@ -86,7 +86,7 @@ int main (void) {
 						break;
 					}
 
-					if (map[current_x - 1][current_y].Tile.type == 0 &&
+					if (map[current_x - 1][current_y].Tile.type == 1 &&
 						map[current_x - 1][current_y].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
@@ -94,6 +94,7 @@ int main (void) {
 					moveDroidUp(map, &Character, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
+						map[current_x][current_y] = Character;
 						initializeEnemy(&Enemy, enemyLevel);
 					}
 				}
@@ -121,6 +122,7 @@ int main (void) {
 					moveDroidLeft(map, &Character, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
+						map[current_x][current_y] = Character;
 						initializeEnemy(&Enemy, enemyLevel);
 					}
 
@@ -140,7 +142,7 @@ int main (void) {
 						break;
 					}
 
-					if (map[current_x + 1][current_y].Tile.type == 0 &&
+					if (map[current_x + 1][current_y].Tile.type == 1 &&
 						map[current_x + 1][current_y].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
@@ -148,6 +150,7 @@ int main (void) {
 					moveDroidDown(map, &Character, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
+						map[current_x][current_y] = Character;
 						initializeEnemy(&Enemy, enemyLevel);
 					}
 				}
@@ -168,7 +171,7 @@ int main (void) {
 						break;
 					}
 
-					if (map[current_x][current_y + 1].Tile.type == 0 &&
+					if (map[current_x][current_y + 1].Tile.type == 1 &&
 						map[current_x][current_y + 1].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
@@ -176,6 +179,7 @@ int main (void) {
 					moveDroidRight(map, &Character, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
+						map[current_x][current_y] = Character;
 						initializeEnemy(&Enemy, enemyLevel);
 					}
 				}
@@ -191,7 +195,7 @@ int main (void) {
 		};
 
 		cleanup(map, &Character, &current_x, &current_y);
-		moveEnemy(map, current_x, current_y);
+		moveEnemy(map, &Character, &Enemy, current_x, current_y);
 		drawMap(map);
 
 		if (Character.Droid.powerLevel <= 0) {

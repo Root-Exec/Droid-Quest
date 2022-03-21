@@ -1,11 +1,17 @@
 #define STRING_H
 #define UNISTD_H
 #define STDLIB_H
+#define STDIO_H
 #define DROID_TYPE 0
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
+short powerSupplyCost = 1;
+short attackUpgradeCost = 1;
+short softwareUpgradeCost = 1; 
+short armorRegenUpgradeCost = 1;
 
 union node {
 
@@ -18,6 +24,8 @@ union node {
 		int powerLevel;
 		int moved;
 		int x, y;
+		short powerSupplyValue;
+		short armorRegenValue;
 		char icon;
 	} Droid;
 
@@ -42,6 +50,8 @@ int initializeCharacter(Node* Character) {
 	Character->Droid.batteryLimit = 100;
 	Character->Droid.powerLevel = Character->Droid.batteryLimit;
 	Character->Droid.icon = 'O';
+	Character->Droid.powerSupplyValue = 20;
+	Character->Droid.armorRegenValue = 20;
 	return 0;
 }
 
@@ -57,16 +67,62 @@ int initializeEnemy(Node* Enemy, int level) {
 }
 
 int powerUp(Node* Character) {
-	Character->Droid.powerLevel += 30;
+	Character->Droid.powerLevel += Character->Droid.powerSupplyValue;
 	if (Character->Droid.powerLevel > 100) Character->Droid.powerLevel = 102;
-	Character->Droid.health += 20;
+	Character->Droid.health += Character->Droid.armorRegenValue;
 	if (Character->Droid.health >= 100) Character->Droid.health = 100;
 	return 0;
 }
 
-int upgradeCharacter(char* item, Node* Character) {
-	if (strcmp(item, "power supply") == 0) Character->Droid.batteryLimit += 10;
-	if (strcmp(item, "weapon") == 0) Character->Droid.attack += 5;
+int upgradeCharacter(Node* Character, int* datapads) {
+	short usr;
+	system("clear");
+	fflush(stdout);
+	printf("        _______             \n");
+	printf("       |  |*|  |            \n");
+	printf("      _|_______|_           \n");
+	printf("     | | _____ | |          \n");
+	printf("     | | _____ | |          \n");
+	printf("     |_|_______|_|          \n");
+	printf("_____|_|__|_|__|_|______    \n");
+	printf("      Droid Upgrade!        \n");
+	printf("  Spend datapads to upgrade  \n");
+	printf("   Datapads available:        %d\n", *datapads);
+	printf("1. Upgrade Power Supply Port: %d\n", powerSupplyCost);
+	printf("2. Upgrade Attack Module:     %d\n", attackUpgradeCost);
+	printf("3. Upgrade Droid Software:    %d\n", softwareUpgradeCost);
+	printf("4. Upgrade Amor Regeneration: %d\n", armorRegenUpgradeCost);
+	printf("Press 'c' when ready to continue.");
+	printf("Input upgrade:  ");
+	
+	usr = getchar();
+	while (usr != c) {
+		switch (usr) {
+
+			case '1':
+				Character->Droid.powerSupplyValue += 2;
+				*datapads -= powerSupplyCost;
+				powerSupplyCost++;
+				break;
+
+			case '2':
+				Character->Droid.attack += 2;
+				*datapads -= attackUpgradeCost;
+				attackUpgradeCost++;
+				break;
+
+			case '3':
+				Character->Droid.softwareVersion++;
+				*datapads -= softwareUpgradeCost;
+				softwareUpgradeCost++;
+				break;
+
+			case '4':
+				Character->Droid.armorRegenValue += 2;
+				*datapads -= armorRegenUpgradeCost;
+				armorRegenUpgradeCost++;
+				break;
+	}
 	return 0;
 }
 
@@ -122,8 +178,6 @@ void attack(Node* Character, Node** map, int x, int y) {
 }
 
 void collectDatapad(Node* Character, int* datapads) {
-		int value = arc4random_uniform(4);
-		if (value <= 10) Character->Droid.softwareVersion += 1;
 		(*datapads)++;
 		return;
 }

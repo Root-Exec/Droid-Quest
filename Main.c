@@ -1,5 +1,6 @@
 #include <sys/select.h>
 #include "maps.h"
+#include <termios.h>
 
 #ifndef DROIDFUNCTIONS_H
 #include "droidFunctions.h"
@@ -23,6 +24,19 @@ int timer = 0;
 
 struct timeval timeout;
 
+void initTerminal(struct termios* defaultTerminal, struct termios* gameTerminal) {
+	tcgetattr(STDIN_FILENO, defaultTerminal);
+	*gameTerminal = *defaultTerminal;
+	gameTerminal->c_lflag &= (~ICANON);
+	gameTerminal->c_lflag &= (~ECHO);
+	if (tcsetattr(STDIN_FILENO, TCSANOW, gameTerminal) == -1)
+		printf("Terminal Init Failed\n");
+}
+
+void resetTerminal(struct termios* defaultTerminal) {
+	tcsetattr(STDIN_FILENO, TCSANOW, defaultTerminal);
+}
+
 
 int main (void) {
 	int current_x = startX;
@@ -31,6 +45,9 @@ int main (void) {
 	char command;
 	
 	fd_set rfds;
+
+	struct termios defaultTerminal, gameTerminal;
+	if (setvbuf(stdin, NULL, _IONBF, 0) != 0) printf("Buffer change fail\n");
 
 	printWelcomeScreen();
 	initializeCharacter(&Character);
@@ -47,6 +64,8 @@ int main (void) {
 	}
 
 	drawMap(map);
+	initTerminal(&defaultTerminal, &gameTerminal);
+	__CLEARBUFFER;
 
 	while (1) {
 
@@ -65,6 +84,7 @@ int main (void) {
 		} else if (retval == -1) {
 			system("clear");
 			printf("system timer error\n");
+			resetTerminal(&defaultTerminal);
 			return 1;
 		}
 		
@@ -187,30 +207,33 @@ int main (void) {
 
 			case 'l':
 				unloadMap(map);
+				resetTerminal(&defaultTerminal);
 				return 0;
 
 			default:
 				continue;
 
 		};
-
-		cleanup(map, &Character, &current_x, &current_y);
+		
+		//cleanup(map, &Character, &current_x, &current_y);
 		moveEnemy(map, &Character, &Enemy, current_x, current_y);
 		drawMap(map);
 
 		if (Character.Droid.powerLevel <= 0) {
 			printf("Droid powering down, out of power!\nYou lose!\n");
 			unloadMap(map);
+			resetTerminal(&defaultTerminal);
 			return 0;
 		}
 		if (Character.Droid.health <= 0) {
 			printf("Droid structural integrity down to zero!\nYou lose!\n");
 			unloadMap(map);
+			resetTerminal(&defaultTerminal);
 			return 0;
 		}
 		
 	}
-
+	resetTerminal(&defaultTerminal);
 	return 0;
 }
 

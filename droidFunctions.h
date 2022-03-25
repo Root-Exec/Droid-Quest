@@ -2,7 +2,8 @@
 #define UNISTD_H
 #define STDLIB_H
 #define STDIO_H
-#define DROID_TYPE 0
+
+#define __CLEARBUFFER while ((c = getchar()) != '\n');
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,6 +13,7 @@ short powerSupplyCost = 1;
 short attackUpgradeCost = 1;
 short softwareUpgradeCost = 1; 
 short armorRegenUpgradeCost = 1;
+int c;
 
 union node {
 
@@ -37,21 +39,18 @@ union node {
 };
 
 typedef union node Node;
-
 extern Node path;
-
-char items[][15] = {"armor", "power supply", "weapon", "software"};
 
 int initializeCharacter(Node* Character) {
 	Character->Droid.type = 0;
 	Character->Droid.softwareVersion = 0;
 	Character->Droid.health = 100;
-	Character->Droid.attack = 10;
+	Character->Droid.attack = 20;
 	Character->Droid.batteryLimit = 100;
 	Character->Droid.powerLevel = Character->Droid.batteryLimit;
 	Character->Droid.icon = 'O';
-	Character->Droid.powerSupplyValue = 20;
-	Character->Droid.armorRegenValue = 20;
+	Character->Droid.powerSupplyValue = 25;
+	Character->Droid.armorRegenValue = 25;
 	return 0;
 }
 
@@ -75,38 +74,42 @@ int powerUp(Node* Character) {
 }
 
 int upgradeCharacter(Node* Character, int* datapads) {
-	short usr;
-	system("clear");
-	fflush(stdout);
-	printf("        _______             \n");
-	printf("       |  |*|  |            \n");
-	printf("      _|_______|_           \n");
-	printf("     | | _____ | |          \n");
-	printf("     | | _____ | |          \n");
-	printf("     |_|_______|_|          \n");
-	printf("_____|_|__|_|__|_|______    \n");
-	printf("      Droid Upgrade!        \n");
-	printf("  Spend datapads to upgrade  \n");
-	printf("   Datapads available:        %d\n", *datapads);
-	printf("1. Upgrade Power Supply Port: %d\n", powerSupplyCost);
-	printf("2. Upgrade Attack Module:     %d\n", attackUpgradeCost);
-	printf("3. Upgrade Droid Software:    %d\n", softwareUpgradeCost);
-	printf("4. Upgrade Amor Regeneration: %d\n", armorRegenUpgradeCost);
-	printf("Press 'c' when ready to continue.");
-	printf("Input upgrade:  ");
-	
-	usr = getchar();
-	while (usr != c) {
+	short usr = 0;
+	__CLEARBUFFER;
+
+	while (usr != 'c' && *datapads > 0) {
+		
+		system("clear");
+		//fflush(stdout);
+		printf("        _______             \n");
+		printf("       |  |*|  |            \n");
+		printf("      _|_______|_           \n");
+		printf("     | | _____ | |          \n");
+		printf("     | | _____ | |          \n");
+		printf("     |_|_______|_|          \n");
+		printf("_____|_|__|_|__|_|______    \n");
+		printf("      Droid Upgrade!        \n");
+		printf("  Spend datapads to upgrade  \n");
+		printf("   Datapads available:        %d\n", *datapads);
+		printf("1. Upgrade Power Supply Port: %d\n", powerSupplyCost);
+		printf("2. Upgrade Attack Module:     %d\n", attackUpgradeCost);
+		printf("3. Upgrade Droid Software:    %d\n", softwareUpgradeCost);
+		printf("4. Upgrade Amor Regeneration: %d\n", armorRegenUpgradeCost);
+		printf("Press 'c' when ready to continue...\n");
+		printf("Input upgrade:  \n");
+
+		usr = getchar();
+
 		switch (usr) {
 
 			case '1':
-				Character->Droid.powerSupplyValue += 2;
+				Character->Droid.powerSupplyValue += 5;
 				*datapads -= powerSupplyCost;
 				powerSupplyCost++;
 				break;
 
 			case '2':
-				Character->Droid.attack += 2;
+				Character->Droid.attack += 10;
 				*datapads -= attackUpgradeCost;
 				attackUpgradeCost++;
 				break;
@@ -118,10 +121,12 @@ int upgradeCharacter(Node* Character, int* datapads) {
 				break;
 
 			case '4':
-				Character->Droid.armorRegenValue += 2;
+				Character->Droid.armorRegenValue += 5;
 				*datapads -= armorRegenUpgradeCost;
 				armorRegenUpgradeCost++;
 				break;
+		}
+		
 	}
 	return 0;
 }

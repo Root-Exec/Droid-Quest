@@ -1,14 +1,11 @@
 #include "droidFunctions.h"
 #include <time.h>
-#ifndef STDIO_H
-#define <stdio.h>
-#endif
 
 #define DROIDFUNCTIONS_H
 #define MAXROW 30
 #define MAXCOL 30
 #define PATH_TYPE 1
-#define __CLEARBUFFER while ((c = getchar()) != '\n');
+
 
 Node wall;
 Node vert_door;
@@ -66,7 +63,6 @@ void printInstructions(void) {
 	timeToContinue.tv_sec = 0;
 	timeToContinue.tv_nsec = 50000000;
 	
-	int usr = 0;
 	char* message = " Welcome to Droid Quest! You play as an astromech droid trying to escape the deathstar! \n"
 					" Your job is to collect as much data on your escape from datapads denoted as 'D' on the map. \n"
 					" But watch out for Imperial Soldiers on patrol! They are denoted as 'E' on the map. \n"
@@ -94,7 +90,7 @@ void printInstructions(void) {
 
 		if (message[a] != '\n') printf("|");
 		if (message[a] == '\n') {
-			sleep(2);
+			sleep(1);
 			printf("\n");
 			start = a + 1;
 			end = start;
@@ -103,11 +99,8 @@ void printInstructions(void) {
 			printf("\r");
 		}
 		fflush(stdout);
-		
 	}
-	printf("Press c to continue back to main page\n");
-
-	while (usr != 'c') usr = getchar();
+	__CLEARBUFFER;
 
 	return;
 }
@@ -143,14 +136,14 @@ void printWelcomeScreen(){
 	printf("\nPress 'c' to continue to game\n");
 	printf("Press i to view game instructions\n");
 
-	c = getchar();
+	int c = getchar();
 	while (c != 'c') {
 		if (c == 'i') {
 			printInstructions();
 		}
+		printf("\nPress 'c' to continue onto your mission!");
 		c = getchar();
 	}
-
 	__CLEARBUFFER;
 	system("clear");
 	return;
@@ -437,7 +430,13 @@ void moveEnemy(Node** map, Node* Character, Node* Enemy, int current_x, int curr
 					map[x][y + tempY] = *Enemy;
 					map[x][y + tempY].Droid.moved = 1;
 
-				} else {
+				} else if (map[x + tempX][y + tempY].Droid.icon == 'O') {
+					Character->Droid.health -= Enemy->Droid.attack;
+
+				} else if (map[x + tempX][y].Droid.icon == 'O') {
+					Character->Droid.health -= Enemy->Droid.attack;
+
+				} else if (map[x][y + tempY].Droid.icon == 'O') {
 					Character->Droid.health -= Enemy->Droid.attack;
 				}
 			}

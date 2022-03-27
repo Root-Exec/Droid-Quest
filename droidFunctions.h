@@ -3,7 +3,7 @@
 #define STDLIB_H
 #define STDIO_H
 
-#define __CLEARBUFFER while ((c = getchar()) != '\n');
+#define __CLEARBUFFER while ((c = getchar()) != '\n' && c != EOF);
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -75,7 +75,6 @@ int powerUp(Node* Character) {
 
 int upgradeCharacter(Node* Character, int* datapads) {
 	short usr = 0;
-	__CLEARBUFFER;
 
 	while (usr != 'c' && *datapads > 0) {
 		

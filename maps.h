@@ -106,7 +106,7 @@ void printInstructions(void) {
 }
 
 void printWelcomeScreen(){
-
+	
 	printf("  _____    ___   ___       ____    \n");
 	printf("  |     \\ |   \\ /   \\  |  |    \\   \n");
 	printf("  |     | |   | |   |  |  |    |   \n");
@@ -144,7 +144,7 @@ void printWelcomeScreen(){
 		printf("\nPress 'c' to continue onto your mission!");
 		c = getchar();
 	}
-	__CLEARBUFFER;
+
 	system("clear");
 	return;
 

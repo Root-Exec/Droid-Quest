@@ -29,8 +29,10 @@ void initTerminal(struct termios* defaultTerminal, struct termios* gameTerminal)
 	*gameTerminal = *defaultTerminal;
 	gameTerminal->c_lflag &= (~ICANON);
 	gameTerminal->c_lflag &= (~ECHO);
-	if (tcsetattr(STDIN_FILENO, TCSANOW, gameTerminal) == -1)
+	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, gameTerminal) == -1)
 		printf("Terminal Init Failed\n");
+
+	fflush(stdout);
 }
 
 void resetTerminal(struct termios* defaultTerminal) {
@@ -47,8 +49,10 @@ int main (void) {
 	fd_set rfds;
 
 	struct termios defaultTerminal, gameTerminal;
+	
+	initTerminal(&defaultTerminal, &gameTerminal);
 	if (setvbuf(stdin, NULL, _IONBF, 0) != 0) printf("Buffer change fail\n");
-
+	
 	printWelcomeScreen();
 	initializeCharacter(&Character);
 	initializeEnemy(&Enemy, enemyLevel);
@@ -64,8 +68,6 @@ int main (void) {
 	}
 
 	drawMap(map);
-	initTerminal(&defaultTerminal, &gameTerminal);
-	__CLEARBUFFER;
 
 	while (1) {
 

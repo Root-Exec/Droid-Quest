@@ -18,7 +18,6 @@ extern Node Character;
 extern Node Enemy;
 extern int enemyLevel;
 extern int datapads;
-extern int timer;
 
 int prevDoor[2];
 int nextDoor[2];
@@ -28,7 +27,8 @@ int startX = 27;
 int startY = 24;
 int c = 0;
 
-char mapList[][20] = {"map1_template.txt", "map2_template.txt", "map3_template.txt"};
+char mapList[][20] = {"map1_template.txt", "map2_template.txt", 
+					  "map3_template.txt", "map4_template.txt"};
 
 
 void initializeTiles(Node* wall, Node* vert_door, Node* hori_door, Node* path, Node* power, Node* datapad) {
@@ -67,10 +67,11 @@ void printInstructions(void) {
 					" Your job is to collect as much data on your escape from datapads denoted as 'D' on the map. \n"
 					" But watch out for Imperial Soldiers on patrol! They are denoted as 'E' on the map. \n"
 					" You can fight back though! Attempting to move onto an enemy space will initiate a battle. \n"
+					" Luckily, a lot of our enemies carry intel with them. Eliminate them to try and find more datapads. \n"
 					" Be mindful of your enemies! \n" 
 					" They get stronger with each level and reinforcements arrive when you leave that area! \n"
 					" Between each level you can use the datapads to upgrade your different components: \n"
-					" 1. Power Supply Module \n"
+					" 1. Power Supply Module (denoted as 'p' on the map. Regenreates health and battery power \n"
 					" 2. Armor Regeneration Tech \n"
 					" 3. Software Version (must be equivalent to the next level) \n"
 					" 4. Weapons \n"
@@ -78,7 +79,7 @@ void printInstructions(void) {
 					" Your score is based on how many datapads you have collected through the game! \n"
 					" To move around, enter 'w' for up, 'a' for left, \n"
 					" 's' for down, and 'd' for right into the command line. \n"
-					" To execute command press enter. \n\n"
+					" Doors to the next levels are indicated by either '|' or '_' \n"
 					" Good luck, we are counting on the data you are bringing back to command! \n";
 	int a;
 	for (int start = 0, end = 0; end < strlen(message); end++) {
@@ -100,7 +101,6 @@ void printInstructions(void) {
 		}
 		fflush(stdout);
 	}
-	__CLEARBUFFER;
 
 	return;
 }
@@ -307,6 +307,12 @@ Node** loadMap(char* mapName, int* enemyLevel) {
 	return map;
 }
 
+void unloadMap(Node** map) {
+	for (int i = 0; i < MAXROW; i++) {
+		free(map[i]);
+	}
+}
+
 void drawMap(Node** map) {
 	system("Clear");
 	fflush(stdout);
@@ -321,19 +327,20 @@ void drawMap(Node** map) {
 	}
 
 	printf("\nDroid Data: \n");
-	printf("Time elapsed: %d\n", timer);
 	printf("Current Coordinates: x: %d, y: %d\n", Character.Droid.y, MAXROW - Character.Droid.x - 1);
 	printf("Software Version: %d\n", Character.Droid.softwareVersion);
 	printf("Power Level: %d\n", Character.Droid.powerLevel);
 	printf("Health: %d\n", Character.Droid.health);
 	printf("Enemy health: %d  Enemy attack: %d\n", Enemy.Droid.health, Enemy.Droid.attack);
+	printf("Droid Attack: %d\n", Character.Droid.attack);
 	printf("Datapads collected:  %d\n", datapads);
 	printf("Command: \n");
 }
 
 int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y, int* enemyLevel) {
 
-	if (*current_x == prevDoor[0] && *current_y == prevDoor[1]){
+	if (*current_x == prevDoor[0] && *current_y == prevDoor[1]) {
+		unloadMap(*map); 
 		*map = loadMap(mapList[prevMap], enemyLevel);
 		*current_x = nextDoor[0];
 		*current_y = nextDoor[1];
@@ -352,6 +359,7 @@ int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y,
 			sleep(3);
 			return 0;
 		}
+		unloadMap(*map);
 		*map = loadMap(mapList[nextMap], enemyLevel);
 		*current_x = prevDoor[0];
 		*current_y = prevDoor[1];
@@ -368,27 +376,12 @@ int doorTransition(Node*** map, Node* Character, int* current_x, int* current_y,
 }
 
 void statusCheck(Node**map, int x, int y) {
+	unsigned int enemyDroppedDatapad_check = arc4random_uniform(10);
 	if (map[x][y].Droid.health <= 0) {
-		map[x][y] = path;
-		//initializeEnemy(Enemy, enemyLevel);
+		if (enemyDroppedDatapad_check <= 4) map[x][y] = datapad;
+		else map[x][y] = path;
 	}
 	return;
-}
-
-void unloadMap(Node** map) {
-	for (int i = 0; i < MAXROW; i++) {
-		free(map[i]);
-	}
-}
-
-void cleanup(Node** map, Node* Character, int* current_x, int* current_y) {
-	int c;
-	Character->Droid.x = *current_x;
-	Character->Droid.y = *current_y;
-	__CLEARBUFFER;
-	for (int i = 0; i < MAXROW; i++) printf("\r");
-	return;
-
 }
 
 void moveEnemy(Node** map, Node* Character, Node* Enemy, int current_x, int current_y) {
@@ -404,16 +397,15 @@ void moveEnemy(Node** map, Node* Character, Node* Enemy, int current_x, int curr
 			if (y < 0) continue;
 			if (y >= MAXCOL) break;
 
-			if (map[x][y].Droid.icon == 'E' &&
-			    map[x][y].Droid.moved == 0) {
+			if (map[x][y].Droid.icon == 'E' && map[x][y].Droid.moved == 0) {
 				tempX = 0;
 				tempY = 0;
 
-				if (current_x - x < 0) tempX = -1;
-				else if (current_x - x > 0) tempX = 1;
+				if (current_x - x < 0)          tempX = -1;
+				else if (current_x - x > 0)     tempX = 1;
 
-				if (current_y - y < 0) tempY = -1;
-				else if (current_y - y > 0) tempY = 1;
+				if (current_y - y < 0)          tempY = -1;
+				else if (current_y - y > 0)     tempY = 1;
 
 				if (map[x + tempX][y + tempY].Tile.icon == ' ') {
 					map[x][y] = path;

@@ -20,7 +20,6 @@ extern int startY;
 
 int enemyLevel = 1;
 int datapads = 0;
-int timer = 0;
 
 struct timeval timeout;
 
@@ -79,7 +78,6 @@ int main (void) {
 		retval = select(STDIN_FILENO + 1, &rfds, NULL, NULL, &timeout);
 
 		if (retval == 0) {
-			timer++;
 			moveEnemy(map, &Character, &Enemy, current_x, current_y);
 			drawMap(map);
 			continue;
@@ -113,7 +111,7 @@ int main (void) {
 						collectDatapad(&Character, &datapads);
 					}
 
-					moveDroidUp(map, &Character, &current_x, &current_y);
+					moveDroid(map, &Character, -1, 0, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						map[current_x][current_y] = Character;
@@ -141,7 +139,7 @@ int main (void) {
 						collectDatapad(&Character, &datapads);
 					}
 
-					moveDroidLeft(map, &Character, &current_x, &current_y);
+					moveDroid(map, &Character, 0, -1, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						map[current_x][current_y] = Character;
@@ -169,7 +167,7 @@ int main (void) {
 						collectDatapad(&Character, &datapads);
 					}
 
-					moveDroidDown(map, &Character, &current_x, &current_y);
+					moveDroid(map, &Character, 1, 0, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						map[current_x][current_y] = Character;
@@ -198,7 +196,7 @@ int main (void) {
 						collectDatapad(&Character, &datapads);
 					}
 
-					moveDroidRight(map, &Character, &current_x, &current_y);
+					moveDroid(map, &Character, 0, 1, &current_x, &current_y);
 
 					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
 						map[current_x][current_y] = Character;
@@ -217,7 +215,6 @@ int main (void) {
 
 		};
 		
-		//cleanup(map, &Character, &current_x, &current_y);
 		moveEnemy(map, &Character, &Enemy, current_x, current_y);
 		drawMap(map);
 

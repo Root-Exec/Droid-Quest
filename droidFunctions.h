@@ -79,7 +79,6 @@ int upgradeCharacter(Node* Character, int* datapads) {
 	while (usr != 'c' && *datapads > 0) {
 		
 		system("clear");
-		//fflush(stdout);
 		printf("        _______             \n");
 		printf("       |  |*|  |            \n");
 		printf("      _|_______|_           \n");
@@ -130,44 +129,11 @@ int upgradeCharacter(Node* Character, int* datapads) {
 	return 0;
 }
 
-void moveDroidUp(Node** map, Node* Character, int* current_x, int* current_y) {
+void moveDroid(Node** map, Node* Character, int changeX, int changeY, int* current_x, int* current_y) {
 	Character->Droid.powerLevel -= 2;
 	map[*current_x][*current_y] = path;
-	map[*current_x][*current_y].Tile.icon = ' ';
-	(*current_x)--;
-	map[*current_x][*current_y] = *Character;
-	Character->Droid.x = *current_x;
-	Character->Droid.y = *current_y;
-	return;
-}
-
-void moveDroidLeft(Node** map, Node* Character, int* current_x, int* current_y) {
-	Character->Droid.powerLevel -= 2;
-	map[*current_x][*current_y] = path;
-	map[*current_x][*current_y].Tile.icon = ' ';
-	(*current_y)--;
-	map[*current_x][*current_y] = *Character;
-	Character->Droid.x = *current_x;
-	Character->Droid.y = *current_y;
-	return;
-}
-
-void moveDroidDown(Node** map, Node* Character, int* current_x, int* current_y) {
-	Character->Droid.powerLevel -= 2;
-	map[*current_x][*current_y] = path;
-	map[*current_x][*current_y].Tile.icon = ' ';
-	(*current_x)++;
-	map[*current_x][*current_y] = *Character;
-	Character->Droid.x = *current_x;
-	Character->Droid.y = *current_y;
-	return;
-}
-
-void moveDroidRight(Node** map, Node* Character, int* current_x, int* current_y) {
-	Character->Droid.powerLevel -= 2;
-	map[*current_x][*current_y] = path;
-	map[*current_x][*current_y].Tile.icon = ' ';
-	(*current_y)++;
+	*current_x += changeX;
+	*current_y += changeY;
 	map[*current_x][*current_y] = *Character;
 	Character->Droid.x = *current_x;
 	Character->Droid.y = *current_y;

@@ -28,7 +28,8 @@ int startY = 24;
 int c = 0;
 
 char mapList[][20] = {"map1_template.txt", "map2_template.txt", 
-					  "map3_template.txt", "map4_template.txt"};
+					  "map3_template.txt", "map4_template.txt",
+					  "map5_template.txt"};
 
 
 void initializeTiles(Node* wall, Node* vert_door, Node* hori_door, Node* path, Node* power, Node* datapad) {

@@ -6,6 +6,11 @@
 #include "droidFunctions.h"
 #endif
 
+#define MOVELEFT (current_y - 1)
+#define MOVERIGHT (current_y + 1)
+#define MOVEUP (current_x - 1)
+#define MOVEDOWN (current_x + 1)
+
 extern Node wall;
 extern Node vert_door;
 extern Node hori_door;
@@ -42,7 +47,7 @@ void resetTerminal(struct termios* defaultTerminal) {
 int main (void) {
 	int current_x = startX;
 	int current_y = startY;
-	int retval;
+	int timerExpire;
 	char command;
 	
 	fd_set rfds;
@@ -75,13 +80,13 @@ int main (void) {
 		FD_ZERO(&rfds);
 		FD_SET(STDIN_FILENO, &rfds);
 		
-		retval = select(STDIN_FILENO + 1, &rfds, NULL, NULL, &timeout);
+		timerExpire = select(STDIN_FILENO + 1, &rfds, NULL, NULL, &timeout);
 
-		if (retval == 0) {
+		if (timerExpire == 0) {
 			moveEnemy(map, &Character, &Enemy, current_x, current_y);
 			drawMap(map);
 			continue;
-		} else if (retval == -1) {
+		} else if (timerExpire == -1) {
 			system("clear");
 			printf("system timer error\n");
 			resetTerminal(&defaultTerminal);
@@ -93,21 +98,21 @@ int main (void) {
 		switch(command) {
 			//up move
 			case 'w':
-				if (map[current_x - 1][current_y].Tile.icon != '*') {
+				if (map[MOVEUP][current_y].Tile.icon != '*') {
 
-					if (map[current_x - 1][current_y].Tile.icon == 'p') {
+					if (map[MOVEUP][current_y].Tile.icon == 'p') {
 						powerUp(&Character);
 					}
 
-					if (map[current_x - 1][current_y].Tile.type == 0 &&
-						map[current_x - 1][current_y].Droid.icon == 'E') {
-						attack(&Character, map, current_x - 1, current_y);
-						statusCheck(map, current_x - 1, current_y);
+					if (map[MOVEUP][current_y].Tile.type == 0 &&
+						map[MOVEUP][current_y].Droid.icon == 'E') {
+						attack(&Character, map, MOVEUP, current_y);
+						statusCheck(map, MOVEUP, current_y);
 						break;
 					}
 
-					if (map[current_x - 1][current_y].Tile.type == 1 &&
-						map[current_x - 1][current_y].Tile.icon == 'D') {
+					if (map[MOVEUP][current_y].Tile.type == 1 &&
+						map[MOVEUP][current_y].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
 
@@ -121,21 +126,21 @@ int main (void) {
 				break;
 			//left move
 			case  'a':
-				if (map[current_x][current_y - 1].Tile.icon != '*') {
+				if (map[current_x][MOVELEFT].Tile.icon != '*') {
 
-					if (map[current_x][current_y - 1].Tile.icon == 'p') {
+					if (map[current_x][MOVELEFT].Tile.icon == 'p') {
 						powerUp(&Character);
 					}
 
-					else if (map[current_x][current_y - 1].Tile.type == 0 &&
-						map[current_x][current_y - 1].Droid.icon == 'E') {
-						attack(&Character, map, current_x, current_y - 1);
-						statusCheck(map, current_x, current_y - 1);
+					else if (map[current_x][MOVELEFT].Tile.type == 0 &&
+						map[current_x][MOVELEFT].Droid.icon == 'E') {
+						attack(&Character, map, current_x, MOVELEFT);
+						statusCheck(map, current_x, MOVELEFT);
 						break;
 					}
 
-					else if (map[current_x][current_y - 1].Tile.type == 1 &&
-						map[current_x][current_y - 1].Tile.icon == 'D') {
+					else if (map[current_x][MOVELEFT].Tile.type == 1 &&
+						map[current_x][MOVELEFT].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
 
@@ -150,20 +155,20 @@ int main (void) {
 				break;
 			//down move
 			case 's':
-				if (map[current_x + 1][current_y].Tile.icon != '*') {
+				if (map[MOVEDOWN][current_y].Tile.icon != '*') {
 
-					if (map[current_x + 1][current_y].Tile.icon == 'p') {
+					if (map[MOVEDOWN][current_y].Tile.icon == 'p') {
 						powerUp(&Character);
 					}
-					if (map[current_x + 1][current_y].Tile.type == 0 &&
-						map[current_x + 1][current_y].Droid.icon == 'E') {
-						attack(&Character, map, current_x + 1, current_y);
-						statusCheck(map, current_x + 1, current_y);
+					if (map[MOVEDOWN][current_y].Tile.type == 0 &&
+						map[MOVEDOWN][current_y].Droid.icon == 'E') {
+						attack(&Character, map, MOVEDOWN, current_y);
+						statusCheck(map, MOVEDOWN, current_y);
 						break;
 					}
 
-					if (map[current_x + 1][current_y].Tile.type == 1 &&
-						map[current_x + 1][current_y].Tile.icon == 'D') {
+					if (map[MOVEDOWN][current_y].Tile.type == 1 &&
+						map[MOVEDOWN][current_y].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
 
@@ -178,21 +183,21 @@ int main (void) {
 			//right move
 			case 'd':
 
-				if (map[current_x][current_y + 1].Tile.icon != '*') {
+				if (map[current_x][MOVERIGHT].Tile.icon != '*') {
 
-					if (map[current_x][current_y + 1].Tile.icon == 'p') {
+					if (map[current_x][MOVERIGHT].Tile.icon == 'p') {
 						powerUp(&Character);
 					}
 
-					if (map[current_x][current_y + 1].Tile.type == 0 &&
-						map[current_x][current_y + 1].Droid.icon == 'E') {
-						attack(&Character, map, current_x, current_y + 1);
-						statusCheck(map, current_x, current_y + 1);
+					if (map[current_x][MOVERIGHT].Tile.type == 0 &&
+						map[current_x][MOVERIGHT].Droid.icon == 'E') {
+						attack(&Character, map, current_x, MOVERIGHT);
+						statusCheck(map, current_x, MOVERIGHT);
 						break;
 					}
 
-					if (map[current_x][current_y + 1].Tile.type == 1 &&
-						map[current_x][current_y + 1].Tile.icon == 'D') {
+					if (map[current_x][MOVERIGHT].Tile.type == 1 &&
+						map[current_x][MOVERIGHT].Tile.icon == 'D') {
 						collectDatapad(&Character, &datapads);
 					}
 

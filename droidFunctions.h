@@ -54,6 +54,7 @@ typedef struct point {
 	int predictedDistance;         //Heurestic value. Weighted value
 	int moveValue; 				   //distanceTraveled + predictedDistance
 	struct point* parent;		   //pointer to the point's parent
+	int origin;
 } Point;
 
 int initializeCharacter(Node* Character) {
@@ -174,7 +175,7 @@ int compare(const void* a, const void* b) {
 	return pt_a->moveValue - pt_b->moveValue;
 }
 
-void AIpath(Node** map, int startX, int startY, int* nextDoor) {
+void AIpath(Node** map, int startX, int startY, int* nextDoor, int* botX, int* botY) {
 	
 	Point paths[30][30] = {0};
 	Point current;
@@ -201,11 +202,13 @@ void AIpath(Node** map, int startX, int startY, int* nextDoor) {
 			paths[a][b].predictedDistance = -1;
 			paths[a][b].moveValue = -1;
 			paths[a][b].parent = NULL;
+			paths[a][b].origin = 0;
 		}
 		
 	}
 
 	//set starting Point
+	paths[startX][startY].origin = 1;
 	current.status = OPEN;
 	current.x = startX;
 	current.y = startY;
@@ -213,24 +216,29 @@ void AIpath(Node** map, int startX, int startY, int* nextDoor) {
 	current.predictedDistance = abs(startX - nextDoor[0]) + abs(startY - nextDoor[1]);
 	current.moveValue = current.distanceTravelled + current.predictedDistance;
 	current.parent = NULL;
+	current.origin = 1;
 	openList[open_index++] = current;
 
-	while (open_index > 0) {
-	
-		if (current.x == nextDoor[0] && current.y == nextDoor[1]) endPoint = &paths[current.x][current.y];
+	while (open_index >= 0) {
+
 		memset(&current, 0, sizeof(Point));
 
 		memcpy(&current, &openList[0], sizeof(Point));
+	
+		if (current.x == nextDoor[0] && current.y == nextDoor[1]) {
+			endPoint = &paths[current.x][current.y];
+			break;
+		}
 
 		neighbor = &paths[current.x - 1][current.y];
 		if (neighbor->icon != '*' && current.x - 1 >= 0) {
 			//valid point found
 
-			if (neighbor->status == CLOSED || neighbor->status == OPEN) {
+			if ((neighbor->status == CLOSED || neighbor->status == OPEN) && neighbor->origin == 0) {
 				if (neighbor->distanceTravelled > current.distanceTravelled + 1) {
 					neighbor->parent = &paths[current.x][current.y];
 					neighbor->distanceTravelled = current.distanceTravelled + 1;
-					neighbor->predictedDistance = current.predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
+					neighbor->predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
 					neighbor->moveValue = neighbor->distanceTravelled + neighbor->predictedDistance;
 				}
 			}
@@ -252,11 +260,11 @@ void AIpath(Node** map, int startX, int startY, int* nextDoor) {
 		if (neighbor->icon != '*' && current.x + 1 <= 29) {
 			//valid point found
 
-			if (neighbor->status == CLOSED || neighbor->status == OPEN) {
+			if ((neighbor->status == CLOSED || neighbor->status == OPEN) && neighbor->origin == 0) {
 				if (neighbor->distanceTravelled > current.distanceTravelled + 1) {
 					neighbor->parent = &paths[current.x][current.y];
 					neighbor->distanceTravelled = current.distanceTravelled + 1;
-					neighbor->predictedDistance = current.predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
+					neighbor->predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
 					neighbor->moveValue = neighbor->distanceTravelled + neighbor->predictedDistance;
 				}
 			}
@@ -278,11 +286,11 @@ void AIpath(Node** map, int startX, int startY, int* nextDoor) {
 		if (neighbor->icon != '*' && current.y + 1 <= 29) {
 			//valid point found
 
-			if (neighbor->status == CLOSED || neighbor->status == OPEN) {
+			if ((neighbor->status == CLOSED || neighbor->status == OPEN) && neighbor->origin == 0) {
 				if (neighbor->distanceTravelled > current.distanceTravelled + 1) {
 					neighbor->parent = &paths[current.x][current.y];
 					neighbor->distanceTravelled = current.distanceTravelled + 1;
-					neighbor->predictedDistance = current.predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
+					neighbor->predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
 					neighbor->moveValue = neighbor->distanceTravelled + neighbor->predictedDistance;
 				}
 			}
@@ -304,11 +312,11 @@ void AIpath(Node** map, int startX, int startY, int* nextDoor) {
 		if (neighbor->icon != '*' && current.y - 1 >= 0) {
 			//valid point found
 
-			if (neighbor->status == CLOSED || neighbor->status == OPEN) {
+			if ((neighbor->status == CLOSED || neighbor->status == OPEN) && neighbor->origin == 0) {
 				if (neighbor->distanceTravelled > current.distanceTravelled + 1) {
 					neighbor->parent = &paths[current.x][current.y];
 					neighbor->distanceTravelled = current.distanceTravelled + 1;
-					neighbor->predictedDistance = current.predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
+					neighbor->predictedDistance = abs(current.x - nextDoor[0]) + abs(current.y - nextDoor[1]);
 					neighbor->moveValue = neighbor->distanceTravelled + neighbor->predictedDistance;
 				}
 			}
@@ -325,32 +333,37 @@ void AIpath(Node** map, int startX, int startY, int* nextDoor) {
 			}
 		}
 
+		//pop first element off list
 		for (int i = 0; i < 30 * 30; i++) {
-			if (i < open_index - 1) openList[i] = openList[i + 1];
+			if (i < open_index) {
+				openList[i] = openList[i + 1];
+			}
 			else memset(&openList[i], 0, sizeof(Point));
 		}
 
 		current.status = CLOSED;
+		paths[current.x][current.y].status = CLOSED;
 		open_index--;
 		qsort(&openList, open_index, sizeof(Point), compare);
 		
 	}
 	
 	if (endPoint != NULL) {
-		
-		while (endPoint->x != startX && endPoint->y != startY) {
-			paths[endPoint->x][endPoint->y].icon = '&';
+		while (endPoint->parent->origin == 0) {
+			if (endPoint->parent == NULL) printf("Lost tail at %d,%d\n", endPoint->x, endPoint->y);
+			endPoint->icon = '#';
 			endPoint = endPoint->parent;
 		}
+		*botX = endPoint->x;
+		*botY = endPoint->y;
 	}
-
+	/*
 	for (int i = 0; i < 30; i++) {
 		for (int j = 0; j < 30; j++) {
 			printf("%c", paths[i][j].icon);
 		}
-
 		printf("\n");
 	}
-
+	*/
 
 }

@@ -48,6 +48,8 @@ int main (void) {
 	int current_x = startX;
 	int current_y = startY;
 	int timerExpire;
+	int botX = 0;
+	int botY = 0;
 	char command;
 	
 	fd_set rfds;
@@ -96,6 +98,7 @@ int main (void) {
 		command = getchar();
 
 		switch(command) {
+
 			//up move
 			case 'w':
 				if (map[MOVEUP][current_y].Tile.icon != '*') {
@@ -124,6 +127,7 @@ int main (void) {
 					}
 				}
 				break;
+
 			//left move
 			case  'a':
 				if (map[current_x][MOVELEFT].Tile.icon != '*') {
@@ -153,6 +157,7 @@ int main (void) {
 
 				}
 				break;
+
 			//down move
 			case 's':
 				if (map[MOVEDOWN][current_y].Tile.icon != '*') {
@@ -180,9 +185,9 @@ int main (void) {
 					}
 				}
 				break;
+
 			//right move
 			case 'd':
-
 				if (map[current_x][MOVERIGHT].Tile.icon != '*') {
 
 					if (map[current_x][MOVERIGHT].Tile.icon == 'p') {
@@ -214,6 +219,34 @@ int main (void) {
 				unloadMap(map);
 				resetTerminal(&defaultTerminal);
 				return 0;
+
+			case 'b':
+				
+				while (1) {
+					AIpath(map, current_x, current_y, nextDoor, &botX, &botY);
+
+					if (map[botX][botY].Tile.icon == 'E') {
+						attack(&Character, map, botX, botY);	
+
+					} else {
+						map[current_x][current_y] = path;
+						map[botX][botY] = Character;
+						moveEnemy(map, &Character, &Enemy, botX, botY);
+						current_x = botX;
+						current_y = botY;
+						drawMap(map);
+					}
+
+					if (doorTransition(&map, &Character, &current_x, &current_y, &enemyLevel)) {
+						map[current_x][current_y] = Character;
+						initializeEnemy(&Enemy, enemyLevel);
+						break;
+					}
+
+					sleep(1);
+				}
+	
+				break;
 
 			default:
 				continue;
